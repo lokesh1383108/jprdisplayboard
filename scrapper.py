@@ -105,6 +105,5 @@ if __name__ == "__main__":
                 print("No data extracted.")
         else:
             print("It is a Lunch Time...")
-        print('aaaaaaa...............')
         time.sleep(10)  # Sleep for 10 seconds before the next iteration
 # print(get_table_data())
