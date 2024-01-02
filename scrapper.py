@@ -8,11 +8,11 @@ from requests_file import FileAdapter
 
 
 def get_table_data():
-    s = requests.Session()
-    s.mount('file://', FileAdapter())
-    # response = requests.get('https://hcraj.nic.in/displayboard/jaipur.php')
+    # s = requests.Session()
+    # s.mount('file://', FileAdapter())
+    response = requests.get('https://hcraj.nic.in/displayboard/jaipur.php')
 
-    response = s.get('file:///C:/Users/1383l/OneDrive/Desktop/Rajasthan%20High%20Court%201.html')
+    # response = s.get('file:///C:/Users/1383l/OneDrive/Desktop/Rajasthan%20High%20Court%201.html')
     # print(response)
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -42,10 +42,8 @@ def get_courtNumberId(scrapped_court_number):
     if os.path.exists('court_number_table.csv'):
         with open('court_number_table.csv','r' , newline='') as csvFile:
             reader = csv.DictReader(csvFile)
-            print('@@')
             for row in reader:
                 if  row['court_number'] == scrapped_court_number:
-                    print(".....")
                     scrapped_court_number_id = row['court_number_id']
                     return scrapped_court_number_id
                 
@@ -60,7 +58,7 @@ def get_courtNumberId(scrapped_court_number):
             new_court_number_id = len(open('court_number_table.csv').readlines())
             
             # Write the new court_number and court_number_id to the CSV file
-            print(new_court_number_id,"and",scrapped_court_number,"added in court_number_table file...")
+            print("New Court Number ",scrapped_court_number,"added with ID ",new_court_number_id," in court_number_table file...")
             writer.writerow([ new_court_number_id, scrapped_court_number])
             scrapped_court_number_id = new_court_number_id
             return scrapped_court_number_id
@@ -89,16 +87,17 @@ if __name__ == "__main__":
     start_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day,10,30,0)
     end_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 16, 30, 0)  # 4:30 PM
 
-    # if datetime.now() > end_time or datetime.now() < start_time:
-    #     print("You are out of Court Working Hours. Start the script between 10:30AM to 4:30PM...")
+    if datetime.now() > end_time or datetime.now() < start_time:
+        print("You are out of Court Working Hours. Start the script between 10:30AM to 4:30PM...")
     if not os.path.exists('time_series_data.csv'):
        time_series_table_header()
-    while True : #datetime.now() <= end_time and datetime.now() >= start_time:
+
+    while datetime.now() <= end_time and datetime.now() >= start_time:
         table_data = get_table_data()
         if table_data:
             save_data_to_csv(table_data)
-            print("Data saved to CSV.")
+            print("Data saved to CSV at ",datetime.now())
         else:
-            print("No data extracted. Feel Today is Holiday...")
-        time.sleep(10)  # Sleep for 10 seconds before the next iteration
+            print("No data extracted. Today is Holiday...")
+        time.sleep(2)  # Sleep for 10 seconds before the next iteration
 # print(get_table_data())
