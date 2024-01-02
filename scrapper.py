@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
+from datetime import time as t
 import csv
 import os
 from requests_file import FileAdapter
@@ -86,6 +87,8 @@ if __name__ == "__main__":
     url = "https://hcraj.nic.in/displayboard/jaipur.php"
     start_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day,10,30,0)
     end_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 16, 30, 0)  # 4:30 PM
+    lunch_time_start = t(13,00,00)
+    lunch_time_end = t(14,00,00)
 
     if datetime.now() > end_time or datetime.now() < start_time:
         print("You are out of Court Working Hours. Start the script between 10:30AM to 4:30PM...")
@@ -93,11 +96,15 @@ if __name__ == "__main__":
        time_series_table_header()
 
     while datetime.now() <= end_time and datetime.now() >= start_time:
-        table_data = get_table_data()
-        if table_data:
-            save_data_to_csv(table_data)
-            print("Data saved to CSV at ",datetime.now())
+        if datetime.now().time() < lunch_time_start or datetime.now().time() >= lunch_time_end:
+            table_data = get_table_data()
+            if table_data:
+                save_data_to_csv(table_data)
+                print("Data saved to CSV at ",datetime.now())
+            else:
+                print("No data extracted.")
         else:
-            print("No data extracted. Today is Holiday...")
-        time.sleep(2)  # Sleep for 10 seconds before the next iteration
+            print("It is a Lunch Time...")
+        print('aaaaaaa...............')
+        time.sleep(10)  # Sleep for 10 seconds before the next iteration
 # print(get_table_data())
