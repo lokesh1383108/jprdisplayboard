@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
-from datetime import time as t
+from datetime import time as t, date as date
 import csv
 import os
 from requests_file import FileAdapter
@@ -28,7 +28,6 @@ def get_table_data():
                 item_number = columns[1].text.strip()
                 court_number_id = get_courtNumberId(court_number)
                 data.append((timestamp,court_number_id, item_number))
-            # all_table_data.append(data)
             return data
         else:
             print("Table not found on the page.")
@@ -71,20 +70,20 @@ def get_court_numer_header():
             writer.writeheader()
 
 
-def time_series_table_header(file_path='time_series_data.csv'):
+def time_series_table_header(file_path=f'{date.today()}_time_series_data.csv'):
     with open(file_path, 'a', newline='') as file:
         fieldnames = ['Timestamp', 'court_number_id', 'item_number']
         csv_writer = csv.DictWriter(file , delimiter=',', fieldnames=fieldnames)
         csv_writer.writeheader()
 
-def save_data_to_csv(data, file_path='time_series_data.csv'):
+def save_data_to_csv(data, file_path=f'{date.today()}_time_series_data.csv'):
     with open(file_path, 'a', newline='') as file:
         csv_writer = csv.writer(file)
         for timestamp, court_number_id, item_number in data:
             csv_writer.writerow([timestamp, court_number_id,item_number])
 
 if __name__ == "__main__":
-    url = "https://hcraj.nic.in/displayboard/jaipur.php"
+    # url = "https://hcraj.nic.in/displayboard/jaipur.php"
     start_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day,10,30,0)
     end_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 16, 30, 0)  # 4:30 PM
     lunch_time_start = t(13,00,00)
@@ -92,18 +91,18 @@ if __name__ == "__main__":
 
     if datetime.now() > end_time or datetime.now() < start_time:
         print("You are out of Court Working Hours. Start the script between 10:30AM to 4:30PM...")
-    if not os.path.exists('time_series_data.csv'):
+    if not os.path.exists(f'{date.today()}_time_series_data.csv'):
        time_series_table_header()
 
     while datetime.now() <= end_time and datetime.now() >= start_time:
-        if datetime.now().time() < lunch_time_start or datetime.now().time() >= lunch_time_end:
+        # if datetime.now().time() < lunch_time_start or datetime.now().time() >= lunch_time_end:
             table_data = get_table_data()
             if table_data:
                 save_data_to_csv(table_data)
-                print("Data saved to CSV at ",datetime.now())
+                print("Data saved to CSV.")
             else:
                 print("No data extracted.")
-        else:
-            print("It is a Lunch Time...")
-        time.sleep(10)  # Sleep for 10 seconds before the next iteration
+        # else:
+        #     print("It is a Lunch Time...")
+            time.sleep(10)  # Sleep for 10 seconds before the next iteration
 # print(get_table_data())
