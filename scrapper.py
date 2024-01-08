@@ -11,7 +11,10 @@ from requests_file import FileAdapter
 def get_table_data():
     # s = requests.Session()
     # s.mount('file://', FileAdapter())
-    response = requests.get('https://hcraj.nic.in/displayboard/jaipur.php')
+    headers = {
+    "Connection": "keep-alive"
+}
+    response = requests.get('https://hcraj.nic.in/displayboard/jaipur.php', timeout=20,headers=headers)
 
     # response = s.get('file:///C:/Users/1383l/OneDrive/Desktop/Rajasthan%20High%20Court%201.html')
     # print(response)
@@ -95,14 +98,17 @@ if __name__ == "__main__":
        time_series_table_header()
 
     while datetime.now() <= end_time and datetime.now() >= start_time:
-        # if datetime.now().time() < lunch_time_start or datetime.now().time() >= lunch_time_end:
-            table_data = get_table_data()
-            if table_data:
-                save_data_to_csv(table_data)
-                print("Data saved to CSV.")
+        try:
+            if datetime.now().time() < lunch_time_start or datetime.now().time() >= lunch_time_end:
+                table_data = get_table_data()
+                if table_data:
+                    save_data_to_csv(table_data)
+                    print("Data saved to CSV.")
+                else:
+                    print("No data extracted.")
             else:
-                print("No data extracted.")
-        # else:
-        #     print("It is a Lunch Time...")
-            time.sleep(10)  # Sleep for 10 seconds before the next iteration
+                print("It is a Lunch Time...")
+        except Exception as e:
+            print(str(e))
+        time.sleep(10)  # Sleep for 10 seconds before the next iteration
 # print(get_table_data())
